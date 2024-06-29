@@ -4,15 +4,24 @@ import './TextEditor.scss';
 
 const TextEditor = () => {
   const [text, setText] = useState<string>('');
+
   const [showQuoteModal, setShowQuoteModal] = useState<boolean>(false);
   const [quoteText, setQuoteText] = useState<string>('');
   const [quoteAuthor, setQuoteAuthor] = useState<string>('');
+
   const [showUrlModal, setShowUrlModal] = useState<boolean>(false);
   const [urlText, setUrlText] = useState<string>('');
   const [urlAddress, setUrlAddress] = useState<string>('');
+
   const [showListModal, setShowListModal] = useState<boolean>(false);
   const [listType, setListType] = useState<'list' | 'olist'>('list');
   const [listItems, setListItems] = useState<string[]>(['']);
+
+  const [showTableModal, setShowTableModal] = useState<boolean>(false);
+  const [tableData, setTableData] = useState<string[][]>([['']]);
+  const [noborder, setNoborder] = useState<boolean>(false);
+  const [equalcells, setEqualcells] = useState<boolean>(false);
+
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const simpleTag = (tag: string) => {
@@ -121,15 +130,77 @@ const TextEditor = () => {
     closeModal();
   };
 
+  const addTableRow = () => {
+    const newTableData = [...tableData, Array(tableData[0].length).fill('')];
+    setTableData(newTableData);
+  };
+
+  const addTableColumn = () => {
+    const newTableData = tableData.map((row) => [...row, '']);
+    setTableData(newTableData);
+  };
+
+  const handleTableCellChange = (
+    rowIndex: number,
+    colIndex: number,
+    value: string
+  ) => {
+    const newTableData = [...tableData];
+    newTableData[rowIndex][colIndex] = value;
+    setTableData(newTableData);
+  };
+
+  const addTable = () => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+
+    const borderAttr = noborder ? ' noborder=1' : '';
+    const equalcellsAttr = equalcells ? ' equalcells=1' : '';
+
+    const tableHeader = `[table${borderAttr}${equalcellsAttr}]\n`;
+    const tableFooter = `[/table]`;
+
+    const tableContent = tableData
+      .map((row, rowIndex) => {
+        const rowTag = rowIndex === 0 ? 'tr' : 'tr';
+        const cellTag = rowIndex === 0 ? 'th' : 'td';
+        const cells = row
+          .map((cell) => `    [${cellTag}]${cell}[/${cellTag}]`)
+          .join('\n');
+        return `  [${rowTag}]\n${cells}\n  [/${rowTag}]\n`;
+      })
+      .join('');
+
+    const tableText = `${tableHeader}${tableContent}${tableFooter}`;
+
+    setText(text.slice(0, start) + tableText + text.slice(end));
+    textArea.setSelectionRange(
+      start + tableText.length,
+      start + tableText.length
+    );
+    textArea.focus();
+    closeModal();
+  };
+
   const closeModal = () => {
     setShowQuoteModal(false);
-    setShowUrlModal(false);
-    setShowListModal(false);
     setQuoteText('');
     setQuoteAuthor('');
+
+    setShowUrlModal(false);
     setUrlText('');
     setUrlAddress('');
+
+    setShowListModal(false);
     setListItems(['']);
+
+    setShowTableModal(false);
+    setTableData([['']]);
+    setNoborder(false);
+    setEqualcells(false);
   };
 
   return (
@@ -179,7 +250,14 @@ const TextEditor = () => {
         </button>
       </div>
 
-      {(showQuoteModal || showUrlModal || showListModal) && (
+      <div>
+        <h3>Таблицы:</h3>
+        <button onClick={() => setShowTableModal(true)}>
+          Добавить таблицу
+        </button>
+      </div>
+
+      {(showQuoteModal || showUrlModal || showListModal || showTableModal) && (
         <div className="overlay" onClick={closeModal}>
           {showQuoteModal && (
             <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -250,6 +328,55 @@ const TextEditor = () => {
               ))}
               <button onClick={addListItem}>Добавить элемент</button>
               <button onClick={addList}>Добавить список</button>
+              <button onClick={closeModal}>Отмена</button>
+            </div>
+          )}
+
+          {showTableModal && (
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Добавить таблицу</h3>
+              <table>
+                <tbody>
+                  {tableData.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {row.map((cell, colIndex) => (
+                        <td key={colIndex}>
+                          <input
+                            type="text"
+                            value={cell}
+                            onChange={(e) =>
+                              handleTableCellChange(
+                                rowIndex,
+                                colIndex,
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button onClick={addTableRow}>Добавить ряд</button>
+              <button onClick={addTableColumn}>Добавить колонку</button>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={noborder}
+                  onChange={(e) => setNoborder(e.target.checked)}
+                />
+                Скрыть рамки таблицы
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={equalcells}
+                  onChange={(e) => setEqualcells(e.target.checked)}
+                />
+                Растянуть таблицу на всю ширину страницы
+              </label>
+              <button onClick={addTable}>Добавить таблицу</button>
               <button onClick={closeModal}>Отмена</button>
             </div>
           )}

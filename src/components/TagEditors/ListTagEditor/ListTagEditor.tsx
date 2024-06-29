@@ -2,12 +2,14 @@ import React from 'react';
 
 interface ListTagEditorProps {
   setListType: React.Dispatch<React.SetStateAction<'list' | 'olist'>>;
-  setShowListModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setModalType: React.Dispatch<
+    React.SetStateAction<'qoute' | 'url' | 'list' | 'table' | ''>
+  >;
 }
 
 const ListTagEditor: React.FC<ListTagEditorProps> = ({
   setListType,
-  setShowListModal
+  setModalType
 }) => {
   return (
     <div>
@@ -15,7 +17,7 @@ const ListTagEditor: React.FC<ListTagEditorProps> = ({
       <button
         onClick={() => {
           setListType('list');
-          setShowListModal(true);
+          setModalType('list');
         }}
       >
         Маркированный список
@@ -23,7 +25,7 @@ const ListTagEditor: React.FC<ListTagEditorProps> = ({
       <button
         onClick={() => {
           setListType('olist');
-          setShowListModal(true);
+          setModalType('list');
         }}
       >
         Нумерованный список

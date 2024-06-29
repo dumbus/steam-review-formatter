@@ -15,19 +15,23 @@ import TableModal from '../Modals/TableModal/TableModal';
 const TextEditor = () => {
   const [text, setText] = useState<string>('');
 
-  const [showQuoteModal, setShowQuoteModal] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<
+    'qoute' | 'url' | 'list' | 'table' | ''
+  >('');
+
+  // const [showQuoteModal, setShowQuoteModal] = useState<boolean>(false);
   const [quoteText, setQuoteText] = useState<string>('');
   const [quoteAuthor, setQuoteAuthor] = useState<string>('');
 
-  const [showUrlModal, setShowUrlModal] = useState<boolean>(false);
+  // const [showUrlModal, setShowUrlModal] = useState<boolean>(false);
   const [urlText, setUrlText] = useState<string>('');
   const [urlAddress, setUrlAddress] = useState<string>('');
 
-  const [showListModal, setShowListModal] = useState<boolean>(false);
+  // const [showListModal, setShowListModal] = useState<boolean>(false);
   const [listType, setListType] = useState<'list' | 'olist'>('list');
   const [listItems, setListItems] = useState<string[]>(['']);
 
-  const [showTableModal, setShowTableModal] = useState<boolean>(false);
+  // const [showTableModal, setShowTableModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<string[][]>([['']]);
   const [noborder, setNoborder] = useState<boolean>(false);
   const [equalcells, setEqualcells] = useState<boolean>(false);
@@ -35,21 +39,29 @@ const TextEditor = () => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const closeModal = () => {
-    setShowQuoteModal(false);
-    setQuoteText('');
-    setQuoteAuthor('');
+    switch (modalType) {
+      case 'qoute':
+        setQuoteText('');
+        setQuoteAuthor('');
+        break;
 
-    setShowUrlModal(false);
-    setUrlText('');
-    setUrlAddress('');
+      case 'url':
+        setUrlText('');
+        setUrlAddress('');
+        break;
 
-    setShowListModal(false);
-    setListItems(['']);
+      case 'list':
+        setListItems(['']);
+        break;
 
-    setShowTableModal(false);
-    setTableData([['']]);
-    setNoborder(false);
-    setEqualcells(false);
+      case 'table':
+        setTableData([['']]);
+        setNoborder(false);
+        setEqualcells(false);
+        break;
+    }
+
+    setModalType('');
   };
 
   return (
@@ -60,21 +72,15 @@ const TextEditor = () => {
         text={text}
       />
 
-      <ComplexTagEditor
-        setShowQuoteModal={setShowQuoteModal}
-        setShowUrlModal={setShowUrlModal}
-      />
+      <ComplexTagEditor setModalType={setModalType} />
 
-      <ListTagEditor
-        setListType={setListType}
-        setShowListModal={setShowListModal}
-      />
+      <ListTagEditor setModalType={setModalType} setListType={setListType} />
 
-      <TableTagEditor setShowTableModal={setShowTableModal} />
+      <TableTagEditor setModalType={setModalType} />
 
-      {(showQuoteModal || showUrlModal || showListModal || showTableModal) && (
+      {modalType && (
         <div className="overlay" onClick={closeModal}>
-          {showQuoteModal && (
+          {modalType === 'qoute' && (
             <QuoteModal
               textAreaRef={textAreaRef}
               setText={setText}
@@ -87,7 +93,7 @@ const TextEditor = () => {
             />
           )}
 
-          {showUrlModal && (
+          {modalType === 'url' && (
             <UrlModal
               textAreaRef={textAreaRef}
               setText={setText}
@@ -100,7 +106,7 @@ const TextEditor = () => {
             />
           )}
 
-          {showListModal && (
+          {modalType === 'list' && (
             <ListModal
               textAreaRef={textAreaRef}
               setText={setText}
@@ -112,7 +118,7 @@ const TextEditor = () => {
             />
           )}
 
-          {showTableModal && (
+          {modalType === 'table' && (
             <TableModal
               textAreaRef={textAreaRef}
               setText={setText}

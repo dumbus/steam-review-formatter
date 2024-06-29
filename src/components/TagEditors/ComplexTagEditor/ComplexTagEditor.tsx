@@ -1,19 +1,19 @@
 import React from 'react';
 
 interface ComplexTagEditorProps {
-  setShowQuoteModal: React.Dispatch<React.SetStateAction<boolean>>;
-  setShowUrlModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setModalType: React.Dispatch<
+    React.SetStateAction<'qoute' | 'url' | 'list' | 'table' | ''>
+  >;
 }
 
 const ComplexTagEditor: React.FC<ComplexTagEditorProps> = ({
-  setShowQuoteModal,
-  setShowUrlModal
+  setModalType
 }) => {
   return (
     <div>
       <h3>Сложные теги:</h3>
-      <button onClick={() => setShowQuoteModal(true)}>Цитата</button>
-      <button onClick={() => setShowUrlModal(true)}>Ссылка</button>
+      <button onClick={() => setModalType('qoute')}>Цитата</button>
+      <button onClick={() => setModalType('url')}>Ссылка</button>
     </div>
   );
 };

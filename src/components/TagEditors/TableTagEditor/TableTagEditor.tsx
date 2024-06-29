@@ -1,16 +1,16 @@
 import React from 'react';
 
 interface ListTagEditorProps {
-  setShowTableModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setModalType: React.Dispatch<
+    React.SetStateAction<'qoute' | 'url' | 'list' | 'table' | ''>
+  >;
 }
 
-const TableTagEditor: React.FC<ListTagEditorProps> = ({
-  setShowTableModal
-}) => {
+const TableTagEditor: React.FC<ListTagEditorProps> = ({ setModalType }) => {
   return (
     <div>
       <h3>Таблицы:</h3>
-      <button onClick={() => setShowTableModal(true)}>Добавить таблицу</button>
+      <button onClick={() => setModalType('table')}>Добавить таблицу</button>
     </div>
   );
 };

@@ -7,6 +7,11 @@ import ComplexTagEditor from '../TagEditors/ComplexTagEditor/ComplexTagEditor';
 import ListTagEditor from '../TagEditors/ListTagEditor/ListTagEditor';
 import TableTagEditor from '../TagEditors/TableTagEditor/TableTagEditor';
 
+import QuoteModal from '../Modals/QuoteModal/QuoteModal';
+import UrlModal from '../Modals/UrlModal/UrlModal';
+import ListModal from '../Modals/ListModal/ListModal';
+import TableModal from '../Modals/TableModal/TableModal';
+
 const TextEditor = () => {
   const [text, setText] = useState<string>('');
 
@@ -28,132 +33,6 @@ const TextEditor = () => {
   const [equalcells, setEqualcells] = useState<boolean>(false);
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  const addQuote = () => {
-    const textArea = textAreaRef.current;
-    if (!textArea) return;
-
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-
-    const quoteTag = `[quote=${quoteAuthor}]${quoteText}[/quote]`;
-    setText(text.slice(0, start) + quoteTag + text.slice(end));
-
-    textArea.setSelectionRange(
-      start + quoteTag.length,
-      start + quoteTag.length
-    );
-    textArea.focus();
-    setShowQuoteModal(false);
-    setQuoteText('');
-    setQuoteAuthor('');
-  };
-
-  const addUrl = () => {
-    const textArea = textAreaRef.current;
-    if (!textArea) return;
-
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-
-    const urlTag = `[url=${urlAddress}]${urlText}[/url]`;
-    setText(text.slice(0, start) + urlTag + text.slice(end));
-
-    textArea.setSelectionRange(start + urlTag.length, start + urlTag.length);
-    textArea.focus();
-    setShowUrlModal(false);
-    setUrlText('');
-    setUrlAddress('');
-  };
-
-  const addListItem = () => {
-    setListItems([...listItems, '']);
-  };
-
-  const handleListItemChange = (index: number, value: string) => {
-    const newListItems = [...listItems];
-    newListItems[index] = value;
-    setListItems(newListItems);
-  };
-
-  const addList = () => {
-    const textArea = textAreaRef.current;
-    if (!textArea) return;
-
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-
-    const listTag = listType === 'list' ? 'list' : 'olist';
-    const listContent = listItems
-      .filter((item) => item.trim() !== '')
-      .map((item) => `  [*]${item}\n`)
-      .join('');
-
-    const listText = `[${listTag}]\n${listContent}[/${listTag}]`;
-
-    setText(text.slice(0, start) + listText + text.slice(end));
-    textArea.setSelectionRange(
-      start + listText.length,
-      start + listText.length
-    );
-    textArea.focus();
-    closeModal();
-  };
-
-  const addTableRow = () => {
-    const newTableData = [...tableData, Array(tableData[0].length).fill('')];
-    setTableData(newTableData);
-  };
-
-  const addTableColumn = () => {
-    const newTableData = tableData.map((row) => [...row, '']);
-    setTableData(newTableData);
-  };
-
-  const handleTableCellChange = (
-    rowIndex: number,
-    colIndex: number,
-    value: string
-  ) => {
-    const newTableData = [...tableData];
-    newTableData[rowIndex][colIndex] = value;
-    setTableData(newTableData);
-  };
-
-  const addTable = () => {
-    const textArea = textAreaRef.current;
-    if (!textArea) return;
-
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-
-    const borderAttr = noborder ? ' noborder=1' : '';
-    const equalcellsAttr = equalcells ? ' equalcells=1' : '';
-
-    const tableHeader = `[table${borderAttr}${equalcellsAttr}]\n`;
-    const tableFooter = `[/table]`;
-
-    const tableContent = tableData
-      .map((row, rowIndex) => {
-        const rowTag = rowIndex === 0 ? 'tr' : 'tr';
-        const cellTag = rowIndex === 0 ? 'th' : 'td';
-        const cells = row
-          .map((cell) => `    [${cellTag}]${cell}[/${cellTag}]`)
-          .join('\n');
-        return `  [${rowTag}]\n${cells}\n  [/${rowTag}]\n`;
-      })
-      .join('');
-
-    const tableText = `${tableHeader}${tableContent}${tableFooter}`;
-
-    setText(text.slice(0, start) + tableText + text.slice(end));
-    textArea.setSelectionRange(
-      start + tableText.length,
-      start + tableText.length
-    );
-    textArea.focus();
-    closeModal();
-  };
 
   const closeModal = () => {
     setShowQuoteModal(false);
@@ -196,125 +75,56 @@ const TextEditor = () => {
       {(showQuoteModal || showUrlModal || showListModal || showTableModal) && (
         <div className="overlay" onClick={closeModal}>
           {showQuoteModal && (
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h3>Добавить Цитату</h3>
-              <label>
-                Текст цитаты:
-                <textarea
-                  value={quoteText}
-                  onChange={(e) => setQuoteText(e.target.value)}
-                />
-              </label>
-              <label>
-                Автор цитаты:
-                <input
-                  type="text"
-                  value={quoteAuthor}
-                  onChange={(e) => setQuoteAuthor(e.target.value)}
-                />
-              </label>
-              <button onClick={addQuote}>Добавить</button>
-              <button onClick={closeModal}>Отмена</button>
-            </div>
+            <QuoteModal
+              textAreaRef={textAreaRef}
+              setText={setText}
+              text={text}
+              setQuoteAuthor={setQuoteAuthor}
+              quoteAuthor={quoteAuthor}
+              setQuoteText={setQuoteText}
+              quoteText={quoteText}
+              closeModal={closeModal}
+            />
           )}
 
           {showUrlModal && (
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h3>Добавить Ссылку</h3>
-              <label>
-                Текст ссылки:
-                <input
-                  type="text"
-                  value={urlText}
-                  onChange={(e) => setUrlText(e.target.value)}
-                />
-              </label>
-              <label>
-                Адрес ссылки (URL):
-                <input
-                  type="text"
-                  value={urlAddress}
-                  onChange={(e) => setUrlAddress(e.target.value)}
-                />
-              </label>
-              <button onClick={addUrl}>Добавить</button>
-              <button onClick={closeModal}>Отмена</button>
-            </div>
+            <UrlModal
+              textAreaRef={textAreaRef}
+              setText={setText}
+              text={text}
+              setUrlAddress={setUrlAddress}
+              urlAddress={urlAddress}
+              setUrlText={setUrlText}
+              urlText={urlText}
+              closeModal={closeModal}
+            />
           )}
 
           {showListModal && (
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h3>
-                Добавить{' '}
-                {listType === 'list' ? 'Маркированный' : 'Нумерованный'} список
-              </h3>
-              {listItems.map((item, index) => (
-                <div key={index}>
-                  <label>
-                    Элемент списка:
-                    <input
-                      type="text"
-                      value={item}
-                      onChange={(e) =>
-                        handleListItemChange(index, e.target.value)
-                      }
-                    />
-                  </label>
-                </div>
-              ))}
-              <button onClick={addListItem}>Добавить элемент</button>
-              <button onClick={addList}>Добавить список</button>
-              <button onClick={closeModal}>Отмена</button>
-            </div>
+            <ListModal
+              textAreaRef={textAreaRef}
+              setText={setText}
+              text={text}
+              listType={listType}
+              setListItems={setListItems}
+              listItems={listItems}
+              closeModal={closeModal}
+            />
           )}
 
           {showTableModal && (
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h3>Добавить таблицу</h3>
-              <table>
-                <tbody>
-                  {tableData.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {row.map((cell, colIndex) => (
-                        <td key={colIndex}>
-                          <input
-                            type="text"
-                            value={cell}
-                            onChange={(e) =>
-                              handleTableCellChange(
-                                rowIndex,
-                                colIndex,
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button onClick={addTableRow}>Добавить ряд</button>
-              <button onClick={addTableColumn}>Добавить колонку</button>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={noborder}
-                  onChange={(e) => setNoborder(e.target.checked)}
-                />
-                Скрыть рамки таблицы
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={equalcells}
-                  onChange={(e) => setEqualcells(e.target.checked)}
-                />
-                Растянуть таблицу на всю ширину страницы
-              </label>
-              <button onClick={addTable}>Добавить таблицу</button>
-              <button onClick={closeModal}>Отмена</button>
-            </div>
+            <TableModal
+              textAreaRef={textAreaRef}
+              setText={setText}
+              text={text}
+              setTableData={setTableData}
+              tableData={tableData}
+              setNoborder={setNoborder}
+              noborder={noborder}
+              setEqualcells={setEqualcells}
+              equalcells={equalcells}
+              closeModal={closeModal}
+            />
           )}
         </div>
       )}

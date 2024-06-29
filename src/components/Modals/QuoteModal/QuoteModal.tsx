@@ -28,7 +28,15 @@ const QuoteModal: React.FC<QuoteModalProps> = ({
     const start = textArea.selectionStart;
     const end = textArea.selectionEnd;
 
-    const quoteTag = `[quote=${quoteAuthor}]${quoteText}[/quote]`;
+    let quoteTag = `[quote=${quoteAuthor}]${quoteText}[/quote]`;
+
+    if (start > 0 && text[start - 1] !== '\n') {
+      quoteTag = `\n${quoteTag}`;
+    }
+    if (end < text.length && text[end] !== '\n') {
+      quoteTag = `${quoteTag}\n`;
+    }
+
     setText(text.slice(0, start) + quoteTag + text.slice(end));
 
     textArea.setSelectionRange(

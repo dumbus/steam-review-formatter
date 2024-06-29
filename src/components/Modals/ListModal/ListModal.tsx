@@ -42,7 +42,14 @@ const ListModal: React.FC<ListModalProps> = ({
       .map((item) => `  [*]${item}\n`)
       .join('');
 
-    const listText = `[${listTag}]\n${listContent}[/${listTag}]`;
+    let listText = `[${listTag}]\n${listContent}[/${listTag}]`;
+
+    if (start > 0 && text[start - 1] !== '\n') {
+      listText = `\n${listText}`;
+    }
+    if (end < text.length && text[end] !== '\n') {
+      listText = `${listText}\n`;
+    }
 
     setText(text.slice(0, start) + listText + text.slice(end));
     textArea.setSelectionRange(

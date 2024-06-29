@@ -28,7 +28,15 @@ const UrlModal: React.FC<UrlModalProps> = ({
     const start = textArea.selectionStart;
     const end = textArea.selectionEnd;
 
-    const urlTag = `[url=${urlAddress}]${urlText}[/url]`;
+    let urlTag = `\n[url=${urlAddress}]${urlText}[/url]`;
+
+    if (start > 0 && text[start - 1] !== '\n') {
+      urlTag = `\n${urlTag}`;
+    }
+    if (end < text.length && text[end] !== '\n') {
+      urlTag = `${urlTag}\n`;
+    }
+
     setText(text.slice(0, start) + urlTag + text.slice(end));
 
     textArea.setSelectionRange(start + urlTag.length, start + urlTag.length);

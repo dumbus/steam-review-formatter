@@ -55,8 +55,15 @@ const TableModal: React.FC<TableModalProps> = ({
     const borderAttr = noborder ? ' noborder=1' : '';
     const equalcellsAttr = equalcells ? ' equalcells=1' : '';
 
-    const tableHeader = `[table${borderAttr}${equalcellsAttr}]\n`;
-    const tableFooter = `[/table]`;
+    let tableHeader = `[table${borderAttr}${equalcellsAttr}]\n`;
+    let tableFooter = `[/table]`;
+
+    if (start > 0 && text[start - 1] !== '\n') {
+      tableHeader = `\n${tableHeader}`;
+    }
+    if (end < text.length && text[end] !== '\n') {
+      tableFooter = `${tableFooter}\n`;
+    }
 
     const tableContent = tableData
       .map((row, rowIndex) => {

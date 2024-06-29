@@ -4,7 +4,28 @@ import './TextEditor.scss';
 
 const TextEditor = () => {
   const [text, setText] = useState<string>('');
+  const [showQuoteModal, setShowQuoteModal] = useState<boolean>(false);
+  const [quoteText, setQuoteText] = useState<string>('');
+  const [quoteAuthor, setQuoteAuthor] = useState<string>('');
+  const [showUrlModal, setShowUrlModal] = useState<boolean>(false);
+  const [urlText, setUrlText] = useState<string>('');
+  const [urlAddress, setUrlAddress] = useState<string>('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertTextAtCursor = (insertText: string) => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+
+    setText(text.slice(0, start) + insertText + text.slice(end));
+    textArea.setSelectionRange(
+      start + insertText.length,
+      start + insertText.length
+    );
+    textArea.focus();
+  };
 
   const simpleTag = (tag: string) => {
     const textArea = textAreaRef.current;
@@ -41,6 +62,52 @@ const TextEditor = () => {
     textArea.focus();
   };
 
+  const addQuote = () => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+
+    const quoteTag = `[quote=${quoteAuthor}]${quoteText}[/quote]`;
+    setText(text.slice(0, start) + quoteTag + text.slice(end));
+
+    textArea.setSelectionRange(
+      start + quoteTag.length,
+      start + quoteTag.length
+    );
+    textArea.focus();
+    setShowQuoteModal(false);
+    setQuoteText('');
+    setQuoteAuthor('');
+  };
+
+  const addUrl = () => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+
+    const urlTag = `[url=${urlAddress}]${urlText}[/url]`;
+    setText(text.slice(0, start) + urlTag + text.slice(end));
+
+    textArea.setSelectionRange(start + urlTag.length, start + urlTag.length);
+    textArea.focus();
+    setShowUrlModal(false);
+    setUrlText('');
+    setUrlAddress('');
+  };
+
+  const closeModal = () => {
+    setShowQuoteModal(false);
+    setShowUrlModal(false);
+    setQuoteText('');
+    setQuoteAuthor('');
+    setUrlText('');
+    setUrlAddress('');
+  };
+
   return (
     <>
       <div>
@@ -62,7 +129,62 @@ const TextEditor = () => {
         <button onClick={drawLine}>Нарисовать горизонтальную линию</button>
       </div>
 
-      <div></div>
+      <div>
+        <h3>Сложные теги:</h3>
+        <button onClick={() => setShowQuoteModal(true)}>Цитата</button>
+        <button onClick={() => setShowUrlModal(true)}>Ссылка</button>
+      </div>
+
+      {(showQuoteModal || showUrlModal) && (
+        <div className="overlay" onClick={closeModal}>
+          {showQuoteModal && (
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Добавить Цитату</h3>
+              <label>
+                Текст цитаты:
+                <textarea
+                  value={quoteText}
+                  onChange={(e) => setQuoteText(e.target.value)}
+                />
+              </label>
+              <label>
+                Автор цитаты:
+                <input
+                  type="text"
+                  value={quoteAuthor}
+                  onChange={(e) => setQuoteAuthor(e.target.value)}
+                />
+              </label>
+              <button onClick={addQuote}>Добавить</button>
+              <button onClick={closeModal}>Отмена</button>
+            </div>
+          )}
+
+          {showUrlModal && (
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Добавить Ссылку</h3>
+              <label>
+                Текст ссылки:
+                <input
+                  type="text"
+                  value={urlText}
+                  onChange={(e) => setUrlText(e.target.value)}
+                />
+              </label>
+              <label>
+                Адрес ссылки (URL):
+                <input
+                  type="text"
+                  value={urlAddress}
+                  onChange={(e) => setUrlAddress(e.target.value)}
+                />
+              </label>
+              <button onClick={addUrl}>Добавить</button>
+              <button onClick={closeModal}>Отмена</button>
+            </div>
+          )}
+        </div>
+      )}
 
       <h2>Текст отзыва:</h2>
       <textarea

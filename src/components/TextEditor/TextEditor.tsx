@@ -10,22 +10,10 @@ const TextEditor = () => {
   const [showUrlModal, setShowUrlModal] = useState<boolean>(false);
   const [urlText, setUrlText] = useState<string>('');
   const [urlAddress, setUrlAddress] = useState<string>('');
+  const [showListModal, setShowListModal] = useState<boolean>(false);
+  const [listType, setListType] = useState<'list' | 'olist'>('list');
+  const [listItems, setListItems] = useState<string[]>(['']);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  const insertTextAtCursor = (insertText: string) => {
-    const textArea = textAreaRef.current;
-    if (!textArea) return;
-
-    const start = textArea.selectionStart;
-    const end = textArea.selectionEnd;
-
-    setText(text.slice(0, start) + insertText + text.slice(end));
-    textArea.setSelectionRange(
-      start + insertText.length,
-      start + insertText.length
-    );
-    textArea.focus();
-  };
 
   const simpleTag = (tag: string) => {
     const textArea = textAreaRef.current;
@@ -99,13 +87,49 @@ const TextEditor = () => {
     setUrlAddress('');
   };
 
+  const addListItem = () => {
+    setListItems([...listItems, '']);
+  };
+
+  const handleListItemChange = (index: number, value: string) => {
+    const newListItems = [...listItems];
+    newListItems[index] = value;
+    setListItems(newListItems);
+  };
+
+  const addList = () => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+
+    const start = textArea.selectionStart;
+    const end = textArea.selectionEnd;
+
+    const listTag = listType === 'list' ? 'list' : 'olist';
+    const listContent = listItems
+      .filter((item) => item.trim() !== '')
+      .map((item) => `  [*]${item}\n`)
+      .join('');
+
+    const listText = `[${listTag}]\n${listContent}[/${listTag}]`;
+
+    setText(text.slice(0, start) + listText + text.slice(end));
+    textArea.setSelectionRange(
+      start + listText.length,
+      start + listText.length
+    );
+    textArea.focus();
+    closeModal();
+  };
+
   const closeModal = () => {
     setShowQuoteModal(false);
     setShowUrlModal(false);
+    setShowListModal(false);
     setQuoteText('');
     setQuoteAuthor('');
     setUrlText('');
     setUrlAddress('');
+    setListItems(['']);
   };
 
   return (
@@ -135,7 +159,27 @@ const TextEditor = () => {
         <button onClick={() => setShowUrlModal(true)}>Ссылка</button>
       </div>
 
-      {(showQuoteModal || showUrlModal) && (
+      <div>
+        <h3>Списки:</h3>
+        <button
+          onClick={() => {
+            setListType('list');
+            setShowListModal(true);
+          }}
+        >
+          Маркированный список
+        </button>
+        <button
+          onClick={() => {
+            setListType('olist');
+            setShowListModal(true);
+          }}
+        >
+          Нумерованный список
+        </button>
+      </div>
+
+      {(showQuoteModal || showUrlModal || showListModal) && (
         <div className="overlay" onClick={closeModal}>
           {showQuoteModal && (
             <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -180,6 +224,32 @@ const TextEditor = () => {
                 />
               </label>
               <button onClick={addUrl}>Добавить</button>
+              <button onClick={closeModal}>Отмена</button>
+            </div>
+          )}
+
+          {showListModal && (
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h3>
+                Добавить{' '}
+                {listType === 'list' ? 'Маркированный' : 'Нумерованный'} список
+              </h3>
+              {listItems.map((item, index) => (
+                <div key={index}>
+                  <label>
+                    Элемент списка:
+                    <input
+                      type="text"
+                      value={item}
+                      onChange={(e) =>
+                        handleListItemChange(index, e.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+              ))}
+              <button onClick={addListItem}>Добавить элемент</button>
+              <button onClick={addList}>Добавить список</button>
               <button onClick={closeModal}>Отмена</button>
             </div>
           )}

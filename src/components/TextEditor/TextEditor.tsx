@@ -12,26 +12,22 @@ import UrlModal from '../Modals/UrlModal/UrlModal';
 import ListModal from '../Modals/ListModal/ListModal';
 import TableModal from '../Modals/TableModal/TableModal';
 
+import { ListType, ModalType } from '../../types/types';
+
 const TextEditor = () => {
   const [text, setText] = useState<string>('');
 
-  const [modalType, setModalType] = useState<
-    'qoute' | 'url' | 'list' | 'table' | ''
-  >('');
+  const [modalType, setModalType] = useState<ModalType>('');
 
-  // const [showQuoteModal, setShowQuoteModal] = useState<boolean>(false);
   const [quoteText, setQuoteText] = useState<string>('');
   const [quoteAuthor, setQuoteAuthor] = useState<string>('');
 
-  // const [showUrlModal, setShowUrlModal] = useState<boolean>(false);
   const [urlText, setUrlText] = useState<string>('');
   const [urlAddress, setUrlAddress] = useState<string>('');
 
-  // const [showListModal, setShowListModal] = useState<boolean>(false);
-  const [listType, setListType] = useState<'list' | 'olist'>('list');
+  const [listType, setListType] = useState<ListType>('list');
   const [listItems, setListItems] = useState<string[]>(['']);
 
-  // const [showTableModal, setShowTableModal] = useState<boolean>(false);
   const [tableData, setTableData] = useState<string[][]>([['']]);
   const [noborder, setNoborder] = useState<boolean>(false);
   const [equalcells, setEqualcells] = useState<boolean>(false);

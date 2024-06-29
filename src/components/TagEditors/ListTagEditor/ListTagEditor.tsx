@@ -1,10 +1,10 @@
 import React from 'react';
 
+import { ListType, ModalType } from '../../../types/types';
+
 interface ListTagEditorProps {
-  setListType: React.Dispatch<React.SetStateAction<'list' | 'olist'>>;
-  setModalType: React.Dispatch<
-    React.SetStateAction<'qoute' | 'url' | 'list' | 'table' | ''>
-  >;
+  setListType: React.Dispatch<React.SetStateAction<ListType>>;
+  setModalType: React.Dispatch<React.SetStateAction<ModalType>>;
 }
 
 const ListTagEditor: React.FC<ListTagEditorProps> = ({

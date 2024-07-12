@@ -1,0 +1,18 @@
+.guide-table {
+  display: grid;
+}
+
+.guide-header {
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+}
+
+.guide-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.guide-cell {
+  padding: 5px;
+  border: 1px solid #ccc;
+}
